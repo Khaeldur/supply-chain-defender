@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "name": "default",
+
+  "blocked_packages": [
+    {"name": "plain-crypto-js", "reason": "Known malicious — axios supply chain attack"},
+    {"name": "event-stream", "reason": "Historical supply chain compromise (flatmap-stream)"},
+    {"name": "flatmap-stream", "reason": "Malicious package injected into event-stream"},
+    {"name": "ua-parser-js", "versions": ["0.7.29", "0.8.0", "1.0.0"], "reason": "Compromised versions with crypto miner"},
+    {"name": "coa", "versions": ["2.0.3", "2.0.4", "2.1.1", "2.1.3", "3.0.1", "3.1.3"], "reason": "Compromised versions"},
+    {"name": "rc", "versions": ["1.2.9", "1.3.9", "2.3.9"], "reason": "Compromised versions"}
+  ],
+
+  "blocked_scopes": [],
+
+  "suspicious_name_patterns": [
+    "plain-*",
+    "*-hijack",
+    "*-backdoor",
+    "crypto-js-*",
+    "*typosquat*"
+  ],
+
+  "ci_options": {
+    "fail_on_severity": "HIGH",
+    "block_new_postinstall_scripts": true,
+    "require_lockfile": true,
+    "lockfile_frozen": true
+  },
+
+  "scan_options": {
+    "scan_node_modules": true,
+    "scan_lockfiles": true,
+    "scan_package_json": true,
+    "max_depth": 10,
+    "follow_symlinks": false
+  },
+
+  "allowlist": []
+}

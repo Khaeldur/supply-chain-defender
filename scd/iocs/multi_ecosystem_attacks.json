@@ -1,0 +1,81 @@
+{
+  "id": "multi-ecosystem-attacks",
+  "name": "Multi-Ecosystem and Infrastructure Supply Chain Attacks",
+  "description": "Supply chain attacks spanning multiple ecosystems, container registries, CI/CD, and dependencies",
+  "status": "active",
+
+  "malicious_packages": [
+    {
+      "name": "rest-client",
+      "versions": ["1.6.10", "1.6.11", "1.6.12", "1.6.13"],
+      "severity": "critical",
+      "notes": "Ruby gem compromised. Injected code exfiltrates ENV variables including AWS keys. 2019."
+    },
+    {
+      "name": "strong_password",
+      "versions": ["0.0.7"],
+      "severity": "critical",
+      "notes": "Ruby gem compromised. Executed remote code. 2019."
+    },
+    {
+      "name": "bootstrap-sass",
+      "versions": ["3.2.0.3"],
+      "severity": "critical",
+      "notes": "Ruby gem backdoor. Remote code execution via cookie. 2019."
+    },
+    {
+      "name": "Solarwinds.Orion.Core.BusinessLayer",
+      "versions": ["2019.4.5200.9083", "2020.2.100.12219"],
+      "severity": "critical",
+      "notes": "SolarWinds Orion SUNBURST backdoor. Build system compromise. 2020."
+    },
+    {
+      "name": "XZ Utils",
+      "versions": ["5.6.0", "5.6.1"],
+      "severity": "critical",
+      "notes": "liblzma/xz backdoor (CVE-2024-3094). SSH daemon targeted. Multi-year social engineering."
+    }
+  ],
+
+  "suspicious_packages": [
+    {"pattern": "*-nightly-*", "reason": "Unofficial nightly builds often used to distribute malicious code", "severity": "low"},
+    {"pattern": "*-unofficial", "reason": "Unofficial package variants", "severity": "medium"},
+    {"pattern": "*-fork", "reason": "Unnamed forks with no clear provenance", "severity": "low"}
+  ],
+
+  "network_iocs": [
+    {
+      "type": "domain",
+      "value": "avsvmcloud.com",
+      "context": "SolarWinds SUNBURST C2 domain"
+    },
+    {
+      "type": "domain",
+      "value": "freesslcertificate.com",
+      "context": "Malicious certificate authority used in supply chain attacks"
+    }
+  ],
+
+  "targeted_env_vars": [
+    "RUBY_ENV",
+    "RAILS_ENV",
+    "BUNDLE_GEMFILE",
+    "GEM_HOME",
+    "JAVA_HOME",
+    "MAVEN_HOME",
+    "GRADLE_USER_HOME",
+    "CARGO_HOME",
+    "GOPATH",
+    "GOROOT"
+  ],
+
+  "file_artifacts": [
+    {
+      "pattern": ".build_cache_*",
+      "location": "temp_dir",
+      "context": "Build cache artifacts from compromised CI"
+    }
+  ],
+
+  "postinstall_indicators": []
+}

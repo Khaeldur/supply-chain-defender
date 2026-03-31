@@ -1,0 +1,154 @@
+{
+  "id": "historical-npm-attacks",
+  "name": "Historical npm Supply Chain Attacks",
+  "description": "Known npm supply chain compromises, typosquats, and malicious packages",
+  "status": "active",
+
+  "malicious_packages": [
+    {
+      "name": "event-stream",
+      "versions": ["3.3.6"],
+      "severity": "critical",
+      "notes": "flatmap-stream injected into event-stream 3.3.6 to steal bitcoin from Copay wallet users"
+    },
+    {
+      "name": "flatmap-stream",
+      "versions": ["0.1.1"],
+      "severity": "critical",
+      "notes": "Malicious package injected into event-stream dependency chain"
+    },
+    {
+      "name": "ua-parser-js",
+      "versions": ["0.7.29", "0.8.0", "1.0.0"],
+      "severity": "critical",
+      "notes": "Compromised versions dropped crypto miner and credential stealer"
+    },
+    {
+      "name": "coa",
+      "versions": ["2.0.3", "2.0.4", "2.1.1", "2.1.3", "3.0.1", "3.1.3"],
+      "severity": "critical",
+      "notes": "npm account hijacked, malicious versions published with credential stealer"
+    },
+    {
+      "name": "rc",
+      "versions": ["1.2.9", "1.3.9", "2.3.9"],
+      "severity": "critical",
+      "notes": "npm account hijacked alongside coa"
+    },
+    {
+      "name": "colors",
+      "versions": ["1.4.1", "1.4.2"],
+      "severity": "high",
+      "notes": "Author intentionally broke package with infinite loop (protest). Supply chain disruption."
+    },
+    {
+      "name": "faker",
+      "versions": ["6.6.6"],
+      "severity": "high",
+      "notes": "Author intentionally corrupted faker 6.6.6 with gibberish output"
+    },
+    {
+      "name": "node-ipc",
+      "versions": ["10.1.1", "10.1.2", "11.1.0"],
+      "severity": "critical",
+      "notes": "Author added geopolitical sabotage: wipes files if geolocated to Russia/Belarus"
+    },
+    {
+      "name": "eslint-scope",
+      "versions": ["3.7.2"],
+      "severity": "critical",
+      "notes": "Compromised version stole npm credentials from ~/.npmrc"
+    },
+    {
+      "name": "eslint-config-eslint",
+      "versions": ["5.0.2"],
+      "severity": "high",
+      "notes": "Dependency of eslint-scope compromise"
+    },
+    {
+      "name": "cross-env",
+      "versions": ["5.0.5"],
+      "severity": "critical",
+      "notes": "Typosquat 'crossenv' (no hyphen) was the malicious version; separate from the legitimate package"
+    },
+    {
+      "name": "crossenv",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Typosquat of cross-env. ALL versions malicious. Harvested env vars."
+    },
+    {
+      "name": "jest-config",
+      "versions": [],
+      "severity": "high",
+      "notes": "Typosquat of jest. ALL versions suspicious."
+    },
+    {
+      "name": "bootstrap-sass",
+      "versions": ["3.3.7"],
+      "severity": "high",
+      "notes": "Malicious version published to npm (separate from legitimate RubyGem). Collected env vars."
+    },
+    {
+      "name": "getcookies",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Published as dependency of mailparser-sync, harvested HTTP cookies from web servers"
+    },
+    {
+      "name": "load-from-cwd-or-npm",
+      "versions": ["3.0.2"],
+      "severity": "high",
+      "notes": "Malicious version published"
+    },
+    {
+      "name": "electron-native-notify",
+      "versions": ["1.1.6", "1.1.7"],
+      "severity": "critical",
+      "notes": "Backdoor targeting Agama wallet, remote code execution"
+    },
+    {
+      "name": "bb-builder",
+      "versions": [],
+      "severity": "high",
+      "notes": "Typosquat of popular package, credential harvesting"
+    }
+  ],
+
+  "suspicious_packages": [
+    {"pattern": "cross-env*", "reason": "crossenv typosquat pattern", "severity": "medium"},
+    {"pattern": "*-dev-tools", "reason": "Common typosquat suffix pattern", "severity": "low"},
+    {"pattern": "node-*-legacy", "reason": "Common malicious package naming", "severity": "low"},
+    {"pattern": "*config*setup*", "reason": "Suspicious setup package pattern", "severity": "low"}
+  ],
+
+  "network_iocs": [
+    {
+      "type": "domain",
+      "value": "1337qq-js.github.io",
+      "context": "event-stream / flatmap-stream C2"
+    },
+    {
+      "type": "domain",
+      "value": "pastebin.com",
+      "context": "Commonly used for payload staging in npm attacks"
+    }
+  ],
+
+  "targeted_env_vars": [
+    "npm_config_userconfig",
+    "HOME",
+    "USERPROFILE",
+    "npm_token"
+  ],
+
+  "file_artifacts": [
+    {
+      "pattern": ".npmrc_backup",
+      "location": "home_dir",
+      "context": "eslint-scope stole and backed up npm credentials"
+    }
+  ],
+
+  "postinstall_indicators": []
+}

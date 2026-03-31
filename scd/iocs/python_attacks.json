@@ -1,0 +1,173 @@
+{
+  "id": "python-supply-chain-attacks",
+  "name": "Python/PyPI Supply Chain Attacks",
+  "description": "Known malicious PyPI packages and supply chain compromises",
+  "status": "active",
+
+  "malicious_packages": [
+    {
+      "name": "ctx",
+      "versions": ["0.1.2"],
+      "severity": "critical",
+      "notes": "Typosquat/takeover of abandoned ctx package. Harvested AWS credentials from env vars. May 2022."
+    },
+    {
+      "name": "phpass",
+      "versions": ["0.1"],
+      "severity": "critical",
+      "notes": "Typosquat of PHP password hashing lib. Targeted Python devs familiar with PHP."
+    },
+    {
+      "name": "request",
+      "versions": [],
+      "severity": "critical",
+      "notes": "PyPI typosquat of the popular npm 'request' package. ALL versions malicious. Exfiltrates env vars."
+    },
+    {
+      "name": "requests-unverified",
+      "versions": [],
+      "severity": "high",
+      "notes": "Typosquat of 'requests'. Disables SSL verification and exfiltrates data."
+    },
+    {
+      "name": "httplib2s",
+      "versions": [],
+      "severity": "high",
+      "notes": "Typosquat of httplib2. Credential harvesting."
+    },
+    {
+      "name": "importantpackage",
+      "versions": [],
+      "severity": "high",
+      "notes": "Harvests system info and env vars on install"
+    },
+    {
+      "name": "pyjtorch",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Typosquat of PyTorch. Credential and key harvesting."
+    },
+    {
+      "name": "torch-directml",
+      "versions": [],
+      "severity": "high",
+      "notes": "Suspicious package mimicking official PyTorch DirectML support"
+    },
+    {
+      "name": "loglib-modules",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Targeted Discord users. Harvests Discord tokens, credit card data, browser passwords."
+    },
+    {
+      "name": "discord-selfbot-v14",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Harvests Discord tokens and account info"
+    },
+    {
+      "name": "discord-py-interactions",
+      "versions": [],
+      "severity": "high",
+      "notes": "Typosquat of discord-interactions. Steals tokens."
+    },
+    {
+      "name": "disnake-LL",
+      "versions": [],
+      "severity": "high",
+      "notes": "Malicious Discord library variant"
+    },
+    {
+      "name": "yiffparty",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Targets macOS. Exfiltrates browser cookies, discord tokens, clipboard."
+    },
+    {
+      "name": "setup-tools",
+      "versions": [],
+      "severity": "high",
+      "notes": "Typosquat of setuptools (missing 'up'). Executes reverse shell."
+    },
+    {
+      "name": "python-dateutil2",
+      "versions": [],
+      "severity": "high",
+      "notes": "Typosquat of python-dateutil. Drops backdoor."
+    },
+    {
+      "name": "colouredlogs",
+      "versions": [],
+      "severity": "high",
+      "notes": "Typosquat of coloredlogs. Info stealer."
+    },
+    {
+      "name": "noblesse",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Steals credentials, Discord tokens, browser stored passwords, PayPal accounts"
+    },
+    {
+      "name": "noblesse2",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Variant of noblesse"
+    },
+    {
+      "name": "noblessev2",
+      "versions": [],
+      "severity": "critical",
+      "notes": "Variant of noblesse"
+    }
+  ],
+
+  "suspicious_packages": [
+    {"pattern": "discord-*-v*", "reason": "Common pattern for malicious Discord library variants", "severity": "medium"},
+    {"pattern": "*-selfbot*", "reason": "Discord selfbot packages often malicious", "severity": "high"},
+    {"pattern": "py*torch*", "reason": "PyTorch typosquat pattern", "severity": "medium"},
+    {"pattern": "request[s]?[2-9]", "reason": "requests typosquat pattern (extra digit)", "severity": "high"},
+    {"pattern": "setup-tools", "reason": "setuptools typosquat", "severity": "high"},
+    {"pattern": "python-dateutil[0-9]", "reason": "python-dateutil typosquat", "severity": "medium"}
+  ],
+
+  "network_iocs": [
+    {
+      "type": "domain",
+      "value": "anti-virus.gl.at.ply.gg",
+      "context": "Python stealer C2 infrastructure"
+    },
+    {
+      "type": "domain",
+      "value": "iplogger.org",
+      "context": "Used by various PyPI stealers for IP logging"
+    }
+  ],
+
+  "targeted_env_vars": [
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_DEFAULT_REGION",
+    "DISCORD_TOKEN",
+    "BOT_TOKEN",
+    "DATABASE_URL",
+    "SECRET_KEY",
+    "API_KEY",
+    "PRIVATE_KEY",
+    "HEROKU_API_KEY"
+  ],
+
+  "file_artifacts": [
+    {
+      "pattern": "*.discord_token",
+      "location": "temp_dir",
+      "context": "Dropped by Discord-targeting stealers"
+    },
+    {
+      "pattern": "grabbed_*.txt",
+      "location": "temp_dir",
+      "context": "Common output file pattern for Python stealers"
+    }
+  ],
+
+  "postinstall_indicators": []
+}
