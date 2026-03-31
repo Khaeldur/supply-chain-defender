@@ -105,6 +105,9 @@ class HostScanner:
                     ))
         return findings
 
+    # npm argv verbs that mean a package was actually installed/executed
+    _INSTALL_VERBS = frozenset(["install", "i", "add", "ci", "install-test", "it"])
+
     def _scan_npm_logs(self) -> list[Finding]:
         findings = []
         log_dirs = [
@@ -119,6 +122,19 @@ class HostScanner:
                     content = log_file.read_text(errors="replace")
                 except OSError:
                     continue
+
+                # Only flag if the log was for an actual install command.
+                # npm debug logs contain a line like:
+                #   N verbose argv "install" "axios@1.14.1"
+                # A lookup like `npm view axios@1.14.1` will also contain the
+                # marker string but its argv verb is "view" — not an install.
+                is_install_log = any(
+                    f'"{verb}"' in content or f"'{verb}'" in content
+                    for verb in self._INSTALL_VERBS
+                )
+                if not is_install_log:
+                    continue
+
                 for entry in self.ioc_db.entries:
                     for mp in entry.malicious_packages:
                         for ver in mp.versions:
@@ -201,36 +217,50 @@ class HostScanner:
         return findings
 
     def _search_dir_for_iocs(self, directory: Path, label: str) -> list[Finding]:
-        """Search a directory for known-bad package names in filenames/paths."""
+        """Search npm cache for known-bad package tarballs.
+
+        Searches for the package name as a quoted JSON value (``"name":"foo"`` or
+        ``"_id":"foo@version"``) to avoid substring false-positives.  Short names
+        like ``rc``, ``coa``, ``colors`` appear as substrings inside many other
+        package names, so a bare ``grep rc`` produces massive noise.
+        """
         findings = []
         try:
-            # Use find/grep for performance instead of walking massive cache trees
             for entry in self.ioc_db.entries:
                 for mp in entry.malicious_packages:
                     name = mp.name
-                    try:
-                        result = subprocess.run(
-                            ["grep", "-rl", name, str(directory)],
-                            capture_output=True, text=True, timeout=30,
-                        )
-                        if result.returncode == 0 and result.stdout.strip():
-                            matches = result.stdout.strip().splitlines()[:5]
-                            findings.append(Finding(
-                                severity=Severity.HIGH,
-                                category=FindingCategory.HOST_IOC,
-                                exposure_level=ExposureLevel.INSTALLED,
-                                package_name=name,
-                                version="",
-                                description=f"References to '{name}' found in {label} ({len(matches)} files)",
-                                evidence=[
-                                    Evidence(source=m, detail=f"Contains '{name}'")
-                                    for m in matches
-                                ],
-                                confidence=Confidence.MEDIUM,
-                                remediation=f"Clear npm cache: npm cache clean --force",
-                            ))
-                    except (subprocess.TimeoutExpired, FileNotFoundError):
-                        pass
+                    # Build patterns that require the name to appear as a discrete
+                    # JSON token, not as a substring of another name.
+                    # Matches: "name":"coa"  "_id":"coa@1.0.4"  "coa":
+                    patterns = [
+                        f'"name":"{name}"',
+                        f'"_id":"{name}@',
+                    ]
+                    for pattern in patterns:
+                        try:
+                            result = subprocess.run(
+                                ["grep", "-rl", pattern, str(directory)],
+                                capture_output=True, text=True, timeout=30,
+                            )
+                            if result.returncode == 0 and result.stdout.strip():
+                                matches = result.stdout.strip().splitlines()[:5]
+                                findings.append(Finding(
+                                    severity=Severity.HIGH,
+                                    category=FindingCategory.HOST_IOC,
+                                    exposure_level=ExposureLevel.INSTALLED,
+                                    package_name=name,
+                                    version="",
+                                    description=f"Package '{name}' found in {label} ({len(matches)} cached files)",
+                                    evidence=[
+                                        Evidence(source=m, detail=f"Contains '{pattern}'")
+                                        for m in matches
+                                    ],
+                                    confidence=Confidence.MEDIUM,
+                                    remediation="Clear npm cache: npm cache clean --force",
+                                ))
+                                break  # one finding per package, don't double-report
+                        except (subprocess.TimeoutExpired, FileNotFoundError):
+                            pass
         except OSError:
             pass
         return findings

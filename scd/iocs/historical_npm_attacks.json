@@ -137,7 +137,6 @@
 
   "targeted_env_vars": [
     "npm_config_userconfig",
-    "HOME",
     "USERPROFILE",
     "npm_token"
   ],
